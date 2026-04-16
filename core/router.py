@@ -8,6 +8,8 @@ class RouterNode:
 
 
 class Router:
+    SUPPORTED_METHODS = ('GET', 'POST', 'PATCH', 'PUT', 'DELETE')
+
     def __init__(self):
         self.root = RouterNode()
         self.error_handlers = {}
@@ -17,19 +19,14 @@ class Router:
 
     def register_route(self, path, handlers):
         node = self.root
-        segments = [
-            segment
-            for segment in path.strip('/').split('/')
-            if segment
-        ]
+        segments = [segment for segment in path.strip(
+            '/').split('/') if segment]
         for segment in segments:
             if segment.startswith('<') and segment.endswith('>'):
                 segment = segment.strip('<>')
                 # saving type 'str' if type isn't specified
                 param_type, param_name = (
-                    segment.split(':')
-                    if ':' in segment
-                    else ('str', segment)
+                    segment.split(':') if ':' in segment else ('str', segment)
                 )
                 if '*' not in node.children:
                     node.children['*'] = RouterNode()
@@ -47,16 +44,14 @@ class Router:
     def get_handler(self, path, method):
         node = self.root
         params = {}
-        segments = [
-            segment
-            for segment in path.strip('/').split('/')
-            if segment
-        ]
+        segments = [segment for segment in path.strip(
+            '/').split('/') if segment]
         for segment in segments:
             if segment in node.children:
                 node = node.children[segment]
             elif '*' in node.children:
                 node = node.children['*']
+
                 if node.param_type == 'int' and segment.isdigit():
                     params[node.param_name] = int(segment)
                 elif node.param_type == 'str' and isinstance(segment, str):
@@ -73,8 +68,23 @@ class Router:
         if not handler:
             return (
                 self.error_handlers.get(405),
-                {'allowed_methods': list(node.methods.keys())}
+                {'allowed_methods': list(node.methods.keys())},
             )
+
+        if isinstance(handler, type):
+            view_instance = handler()
+            method_name = method.lower()
+            if hasattr(view_instance, method_name):
+                return getattr(view_instance, method_name), params
+
+            else:
+                allowed = [
+                    method for methods in self.SUPPORTED_METHODS
+                    if hasattr(view_instance, method.lower())
+                ]
+                return (
+                    self.error_handlers.get(405), {'allowed_methods': allowed}
+                )
 
         return handler, params
 
