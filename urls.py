@@ -1,15 +1,19 @@
 # urls.py
 from core.router import Router
 from views import (
-        home_view, users_list_view, user_detail_view,
-        not_found_view, method_not_allowed
+    home_view, UserCreateView, UserDetailView,
+    UserListView,
+    not_found_view, method_not_allowed
 )
 
 
 ROUTES = [
     ('/', {'GET': home_view}),
-    ('users/', {'GET': users_list_view}),
-    ('users/<int:user_id>/', {'GET': user_detail_view}),
+    ('users/', {
+        'GET': UserListView,
+        'POST': UserCreateView,
+    }),
+    ('users/<int:user_id>/', {'GET': UserDetailView}),
 ]
 ERRORS = [
     (404, not_found_view),
