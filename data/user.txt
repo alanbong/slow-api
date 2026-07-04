@@ -1,0 +1,6 @@
+uid::name
+1::Denis
+2::Julia
+3::Anton
+4::Aleksei
+5::Misha
