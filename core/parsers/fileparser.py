@@ -1,6 +1,6 @@
 # fileparser.py
 class FileParser:
-    separator = "::"
+    separator = '::'
 
     def parse_rows(self, rows, fields):
         parsed_data = []
@@ -8,7 +8,7 @@ class FileParser:
             values = line.split(self.separator)
             clean_values = []
             for value in values:
-                if value == "None":
+                if value == 'None':
                     clean_values.append(None)
                 else:
                     clean_values.append(value)
@@ -26,7 +26,7 @@ class FileParser:
         for field in fields:
             value = data.get(field)
             if value is None:
-                value = "None"
+                value = 'None'
             line.append(str(value))
 
         return self.separator.join(line)
